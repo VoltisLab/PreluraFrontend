@@ -15,6 +15,7 @@ import '../utils/page_transitions.dart';
 import 'enhanced_search_screen.dart';
 import 'enhanced_vendor_list_screen.dart';
 import 'cart_screen.dart';
+import 'messages_screen.dart';
 import 'profile_screen.dart';
 import 'modern_profile_screen.dart';
 import 'vendor_dashboard_screen.dart';
@@ -54,8 +55,7 @@ class _HomeScreenSimpleState extends State<HomeScreenSimple> {
         children: [
           _buildFeedTab(),
           const EnhancedSearchScreen(),
-          const EnhancedVendorListScreen(),
-          const CartScreen(),
+          const MessagesScreen(),
           authProvider.isSupplier ? const VendorDashboardScreen() : const ModernProfileScreen(),
         ],
       ),
@@ -830,8 +830,18 @@ class _HomeScreenSimpleState extends State<HomeScreenSimple> {
         currentIndex: _currentIndex,
         onTap: (index) {
           HapticFeedback.selectionClick();
-          _scrollToTop(index);
-          setState(() => _currentIndex = index);
+          if (index == 2) {
+            // Navigate to Add Product screen instead of staying in bottom nav
+            Navigator.pushNamed(context, '/add-product');
+            return;
+          }
+          // Adjust index for cart and profile since we removed the vendor list
+          int adjustedIndex = index;
+          if (index > 2) {
+            adjustedIndex = index - 1;
+          }
+          _scrollToTop(adjustedIndex);
+          setState(() => _currentIndex = adjustedIndex);
         },
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.transparent,
@@ -858,35 +868,18 @@ class _HomeScreenSimpleState extends State<HomeScreenSimple> {
             label: 'Search',
           ),
           const BottomNavigationBarItem(
-            icon: Icon(Icons.favorite_outline),
-            activeIcon: Icon(Icons.favorite),
-            label: 'Wardrobe',
+            icon: Icon(Icons.add_box_outlined),
+            activeIcon: Icon(Icons.add_box),
+            label: 'Sell',
+          ),
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.chat_bubble_outline),
+            activeIcon: Icon(Icons.chat_bubble),
+            label: 'Messages',
           ),
           BottomNavigationBarItem(
-            icon: Consumer<CartProvider>(
-              builder: (context, cartProvider, child) {
-                return Semantics(
-                  label: 'Cart with ${cartProvider.itemCount} items',
-                  child: badges.Badge(
-                    badgeContent: Text(
-                      cartProvider.itemCount.toString(),
-                      style: const TextStyle(color: Colors.white, fontSize: 10),
-                    ),
-                    badgeStyle: const badges.BadgeStyle(
-                      badgeColor: AppColors.vintedCoral,
-                    ),
-                    showBadge: cartProvider.itemCount > 0,
-                    child: const Icon(Icons.shopping_bag_outlined),
-                  ),
-                );
-              },
-            ),
-            activeIcon: const Icon(Icons.shopping_bag),
-            label: 'Cart',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(authProvider.isSupplier ? Icons.store_outlined : Icons.person_outline),
-            activeIcon: Icon(authProvider.isSupplier ? Icons.store : Icons.person),
+            icon: Icon(authProvider.isSupplier ? Icons.storefront_outlined : Icons.account_circle_outlined),
+            activeIcon: Icon(authProvider.isSupplier ? Icons.storefront : Icons.account_circle),
             label: authProvider.isSupplier ? 'Sell' : 'Profile',
           ),
         ],

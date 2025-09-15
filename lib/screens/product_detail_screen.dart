@@ -1186,14 +1186,44 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     border: Border.all(color: AppColors.divider),
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.message_outlined, color: AppColors.textPrimary),
+                    icon: const Icon(Icons.chat_bubble_outline, color: AppColors.textPrimary),
                     onPressed: () {
                       Navigator.pushNamed(context, '/messages');
                     },
                   ),
                 ),
                 const SizedBox(width: 12),
-                // Add to cart button
+                // Offer button
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: product.inStock
+                        ? () {
+                            Navigator.pushNamed(
+                              context,
+                              '/offer',
+                              arguments: product,
+                            );
+                          }
+                        : null,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.primary,
+                      side: const BorderSide(color: AppColors.primary),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'Offer',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                // Buy/Add to cart button
                 Expanded(
                   child: ElevatedButton(
                     onPressed: product.inStock
@@ -1222,7 +1252,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       elevation: 0,
                     ),
                     child: Text(
-                      isInCart ? 'Go to Cart' : 'Add to Cart',
+                      isInCart ? 'In Cart' : 'Buy',
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,

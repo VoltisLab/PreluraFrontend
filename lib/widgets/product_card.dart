@@ -54,17 +54,17 @@ class ProductCard extends StatelessWidget {
             _buildProductImage(),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(12.0),
+                padding: const EdgeInsets.all(8.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Product name
                     _buildProductName(),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     
                     // Price
                     _buildPriceRow(),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     
                     // Vendor name
                     _buildVendorName(),
@@ -262,7 +262,7 @@ class ProductCard extends StatelessWidget {
             ),
             child: Icon(
               isInWishlist ? Icons.favorite : Icons.favorite_border,
-              size: 18,
+              size: 16,
               color: isInWishlist ? AppColors.vintedCoral : AppColors.textSecondary,
             ),
           ),
@@ -278,8 +278,37 @@ class ProductCard extends StatelessWidget {
         final isInCart = cartProvider.isInCart(product.id);
         
         return Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            // Offer button
+            Expanded(
+              child: OutlinedButton(
+                onPressed: product.inStock
+                    ? () {
+                        Navigator.pushNamed(
+                          context,
+                          '/offer',
+                          arguments: product,
+                        );
+                      }
+                    : null,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.primary,
+                  side: const BorderSide(color: AppColors.primary),
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+                child: const Text(
+                  'Offer',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
             // Add to cart button
             Expanded(
               child: ElevatedButton(
@@ -302,14 +331,14 @@ class ProductCard extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  padding: const EdgeInsets.symmetric(vertical: 6),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(6),
                   ),
                   elevation: 0,
                 ),
                 child: Text(
-                  isInCart ? 'In Cart' : 'Add to Cart',
+                  isInCart ? 'In Cart' : 'Buy',
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -330,8 +359,8 @@ class ProductCard extends StatelessWidget {
                   border: Border.all(color: AppColors.divider),
                 ),
                 child: const Icon(
-                  Icons.share,
-                  size: 16,
+                  Icons.share_outlined,
+                  size: 14,
                   color: AppColors.textSecondary,
                 ),
               ),

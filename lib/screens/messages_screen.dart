@@ -4,6 +4,14 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_constants.dart';
 import '../providers/vendor_provider.dart';
+import '../providers/offer_provider.dart';
+import '../providers/auth_provider.dart';
+import '../models/offer_model.dart';
+import '../models/product_model.dart';
+import '../models/user_model.dart';
+import '../widgets/offer_container.dart';
+import '../widgets/counter_offer_popup.dart';
+import 'offer_thread_screen.dart';
 
 enum MessageFilter { all, unread, read, online }
 
@@ -18,6 +26,74 @@ class _MessagesScreenState extends State<MessagesScreen> {
   final TextEditingController _messageController = TextEditingController();
   MessageFilter _currentFilter = MessageFilter.all;
   final List<Map<String, dynamic>> _messages = [
+    // Offer negotiation messages
+    {
+      'id': 'offer_1',
+      'senderId': 'me',
+      'senderName': 'You',
+      'senderAvatar': 'https://picsum.photos/40/40?random=100',
+      'message': 'Hi! Love this North Face jacket. Would you accept £120?',
+      'timestamp': DateTime.now().subtract(const Duration(days: 3, hours: 2)),
+      'isMe': true,
+      'isOffer': true,
+      'offerPrice': 120.0,
+      'originalPrice': 159.0,
+    },
+    {
+      'id': 'offer_2',
+      'senderId': 'offer_negotiation',
+      'senderName': 'Retro Revival Fashion',
+      'senderAvatar': 'https://picsum.photos/40/40?random=offer',
+      'message': 'Thanks for the offer! The lowest I can go is £140. It\'s in perfect condition.',
+      'timestamp': DateTime.now().subtract(const Duration(days: 3, hours: 1)),
+      'isMe': false,
+      'isOfferResponse': true,
+    },
+    {
+      'id': 'offer_3',
+      'senderId': 'me',
+      'senderName': 'You',
+      'senderAvatar': 'https://picsum.photos/40/40?random=100',
+      'message': 'How about £130? I can pick it up today if that works.',
+      'timestamp': DateTime.now().subtract(const Duration(days: 2, hours: 5)),
+      'isMe': true,
+      'isOffer': true,
+      'offerPrice': 130.0,
+      'originalPrice': 159.0,
+    },
+    {
+      'id': 'offer_4',
+      'senderId': 'offer_negotiation',
+      'senderName': 'Retro Revival Fashion',
+      'senderAvatar': 'https://picsum.photos/40/40?random=offer',
+      'message': 'I appreciate the quick pickup offer! Let\'s meet in the middle at £135?',
+      'timestamp': DateTime.now().subtract(const Duration(days: 2, hours: 4)),
+      'isMe': false,
+      'isOfferResponse': true,
+    },
+    {
+      'id': 'offer_5',
+      'senderId': 'me',
+      'senderName': 'You',
+      'senderAvatar': 'https://picsum.photos/40/40?random=100',
+      'message': 'Deal! £135 works for me. When can we meet?',
+      'timestamp': DateTime.now().subtract(const Duration(days: 1, hours: 3)),
+      'isMe': true,
+      'isOffer': true,
+      'offerPrice': 135.0,
+      'originalPrice': 159.0,
+    },
+    {
+      'id': 'offer_6',
+      'senderId': 'offer_negotiation',
+      'senderName': 'Retro Revival Fashion',
+      'senderAvatar': 'https://picsum.photos/40/40?random=offer',
+      'message': 'Perfect! I\'m free tomorrow after 2pm. I\'ll send you the location details.',
+      'timestamp': DateTime.now().subtract(const Duration(hours: 1)),
+      'isMe': false,
+      'isOfferResponse': true,
+    },
+    // Regular messages
     {
       'id': '1',
       'senderId': 'vendor_1',
@@ -66,6 +142,19 @@ class _MessagesScreenState extends State<MessagesScreen> {
   ];
 
   final List<Map<String, dynamic>> _conversations = [
+    {
+      'id': 'offer_negotiation',
+      'name': 'Retro Revival Fashion',
+      'avatar': 'https://picsum.photos/50/50?random=offer',
+      'lastMessage': 'Perfect! I\'m free tomorrow after 2pm. I\'ll send you the location details.',
+      'timestamp': DateTime.now().subtract(const Duration(hours: 1)),
+      'unreadCount': 0,
+      'isOnline': true,
+      'isOfferNegotiation': true,
+      'productName': 'The North Face Denali Fleece Jacket',
+      'finalPrice': 135.0,
+      'originalPrice': 159.0,
+    },
     {
       'id': 'vendor_1',
       'name': 'Urban Streetwear Co.',
@@ -862,6 +951,46 @@ class _MessagesScreenState extends State<MessagesScreen> {
                         ],
                       ),
                       const SizedBox(height: 4),
+                      // Show offer negotiation details if it's an offer conversation
+                      if (conversation['isOfferNegotiation'] == true) ...[
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AppColors.success.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: AppColors.success.withOpacity(0.3)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.check_circle,
+                                size: 12,
+                                color: AppColors.success,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Deal agreed: £${conversation['finalPrice']}',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.success,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          conversation['productName'],
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondary,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                      ],
                       Row(
                         children: [
                           Expanded(
@@ -991,6 +1120,11 @@ class _MessagesScreenState extends State<MessagesScreen> {
   Widget _buildMessageBubble(Map<String, dynamic> message) {
     final isMe = message['isMe'] as bool;
     
+    // Check if this is an offer message
+    if (message['isOffer'] == true) {
+      return _buildOfferMessage(message);
+    }
+    
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
@@ -1047,6 +1181,97 @@ class _MessagesScreenState extends State<MessagesScreen> {
             ),
           ],
         ],
+      ),
+    );
+  }
+
+  Widget _buildOfferMessage(Map<String, dynamic> message) {
+    final isMe = message['isMe'] as bool;
+    final offerPrice = message['offerPrice'] as double;
+    final originalPrice = message['originalPrice'] as double;
+    
+    // Create a temporary offer model for the container
+    final offer = OfferModel(
+      id: message['id'],
+      productId: 'temp_product',
+      buyerId: isMe ? 'current_user' : 'other_user',
+      sellerId: isMe ? 'other_user' : 'current_user',
+      offeredPrice: offerPrice,
+      originalPrice: originalPrice,
+      message: message['message'],
+      status: OfferStatus.pending,
+      createdAt: message['timestamp'],
+    );
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (!isMe) ...[
+            CircleAvatar(
+              radius: 16,
+              backgroundImage: CachedNetworkImageProvider(message['senderAvatar']),
+            ),
+            const SizedBox(width: 8),
+          ],
+          Flexible(
+            child: OfferContainer(
+              offer: offer,
+              isFromMe: isMe,
+              onAccept: !isMe ? () => _handleAcceptOffer(message['id']) : null,
+              onDecline: !isMe ? () => _handleDeclineOffer(message) : null,
+            ),
+          ),
+          if (isMe) ...[
+            const SizedBox(width: 8),
+            CircleAvatar(
+              radius: 16,
+              backgroundImage: CachedNetworkImageProvider(message['senderAvatar']),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  void _handleAcceptOffer(String offerId) {
+    // Handle accepting an offer
+    final offerProvider = Provider.of<OfferProvider>(context, listen: false);
+    offerProvider.acceptOffer(offerId);
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Offer accepted!'),
+        backgroundColor: AppColors.success,
+      ),
+    );
+  }
+
+  void _handleDeclineOffer(Map<String, dynamic> message) {
+    // Show counter offer popup
+    showDialog(
+      context: context,
+      builder: (context) => CounterOfferPopup(
+        originalPrice: message['originalPrice'] as double,
+        currentOffer: message['offerPrice'] as double,
+        onCounterOffer: (newPrice, counterMessage) {
+          // Handle counter offer
+          final offerProvider = Provider.of<OfferProvider>(context, listen: false);
+          offerProvider.declineOfferAndCounter(
+            originalOfferId: message['id'],
+            counterPrice: newPrice,
+            message: counterMessage,
+          );
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Counter offer sent!'),
+              backgroundColor: AppColors.primary,
+            ),
+          );
+        },
       ),
     );
   }

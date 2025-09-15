@@ -9,6 +9,7 @@ import 'providers/enhanced_product_provider.dart';
 import 'providers/cart_provider.dart';
 import 'providers/vendor_provider.dart';
 import 'providers/wishlist_provider.dart';
+import 'providers/offer_provider.dart';
 import 'screens/splash_screen.dart';
 import 'screens/home_screen_simple.dart';
 import 'screens/maps_screen.dart';
@@ -49,6 +50,8 @@ import 'screens/bug_report_screen.dart';
 import 'screens/send_feedback_screen.dart';
 import 'screens/phone_verification_screen.dart';
 import 'screens/smart_payment_screen.dart';
+import 'screens/offer_screen.dart';
+import 'screens/offer_thread_screen.dart';
 import 'models/product_model.dart';
 
 void main() {
@@ -67,6 +70,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => VendorProvider()),
         ChangeNotifierProvider(create: (_) => WishlistProvider()),
+        ChangeNotifierProvider(create: (_) => OfferProvider()),
       ],
       child: MaterialApp(
         title: 'Prelura - Fashion Marketplace',
@@ -217,6 +221,14 @@ class MyApp extends StatelessWidget {
           '/terms-conditions': (context) => const TermsConditionsScreen(),
           '/privacy-policy': (context) => const PrivacyPolicyScreen(),
           '/about': (context) => const AboutScreen(),
+          '/offer': (context) {
+            final product = ModalRoute.of(context)!.settings.arguments as ProductModel;
+            return OfferScreen(product: product);
+          },
+          '/offer-thread': (context) {
+            final threadId = ModalRoute.of(context)!.settings.arguments as String;
+            return OfferThreadScreen(threadId: threadId);
+          },
         },
         onGenerateRoute: (settings) {
           switch (settings.name) {
