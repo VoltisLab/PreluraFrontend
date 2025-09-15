@@ -1,0 +1,45 @@
+name: prelura_app
+description: Prelura - A B2B wholesalers marketplace Flutter application
+publish_to: 'none'
+version: 3.0.0+3
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  provider: ^6.1.1
+  http: ^1.5.0
+  shared_preferences: ^2.2.2
+  cached_network_image: ^3.3.0
+  flutter_rating_bar: ^4.0.1
+  carousel_slider: ^5.1.1
+  flutter_staggered_grid_view: ^0.7.0
+  badges: ^3.1.2
+  flutter_svg: ^2.0.9
+  google_fonts: ^6.1.0
+  shimmer: ^3.0.0
+  flutter_spinkit: ^5.2.0
+  intl: ^0.19.0
+  image_picker: ^1.0.4
+  permission_handler: ^11.1.0
+  geolocator: ^10.1.0
+  google_maps_flutter: ^2.5.0
+  lottie: ^3.1.2
+  share_plus: ^7.2.2
+  graphql_flutter: ^5.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/logos/
+    - assets/animations/
